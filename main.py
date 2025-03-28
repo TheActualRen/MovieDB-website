@@ -3,15 +3,35 @@ from dbManager import DBManager
 if __name__ == "__main__":
 
     myManager = DBManager(
-        movie_name="The Shawshank Redemption",
-        release_year=1994,
-        age_rating="15",
-        runtime=144,
-        combined_rating=9.3,
-        director_list=[["Frank", "Darabont"]],
-        writer_list=[["Stephen", "King"], ["Frank", "Darabont"]],
-        actor_list=[["Tim", "Robbins"], ["Morgan", "Freeman"], ["Bob", "Gunton"]],
-        genre_list=["Drama", "Prison Drama"],
+        movie_name="Spider-Man: Across the Spider-Verse",
+        release_year=2023,
+        age_rating="PG",
+        runtime=140,
+        combined_rating=8.5,
+        director_list=[
+            ["Joaquim", "Dos Santos"],
+            ["Kemp", "Powers"],
+            ["Justin K.", "Thompson"],
+        ],
+        writer_list=[
+            ["Phill", "Lord"],
+            ["Christopher", "Miller"],
+            ["Dave", "Callaham"],
+        ],
+        actor_list=[
+            ["Shameik", "Moore"],
+            ["Hailee", "Steinfeld"],
+            ["Brian Tyree", "Henry"],
+        ],
+        genre_list=[
+            "Computer Animation",
+            "Superhero",
+            "Action",
+            "Adventure",
+            "Animation",
+            "Family",
+            "Fantasy",
+        ],
     )
 
     myManager.create_tables()

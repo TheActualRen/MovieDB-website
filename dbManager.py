@@ -1,75 +1,3 @@
-"""
-So what do I need in my database.
-
-Login / Sign-Up system:
-    user_id, first_name, last_name, username, password (that must be hashed), email, state (like are they banned or not)
-
-Movie Stuff:
-    movie_id, movie_name, release_year, age_rating, runtime (best probs in minutes), rating, director/s, writer/s, cast, genre/s
-
-
-No why am I struggling to make this database.
-
-1) Values like director/s, writer/s, genre/s can have multiple values, so we can't store them in the same table
-2) Since I can't store them in the same table, how do I go about seperating the tables.
-3) Once seperating the tables, how can I connect all the tables - what must be a primary key, foreign key, do I need composite keys?
-   (The hardest part in my mind atm)
-
-How Do I go about fixing these problems?
-
-So the main issue with having multiple director/s, writer/s, cast and genre/s under one movie table is that a many-to-many relationship is created
-between the movie and the respective fields.
-
-From school, I remember that my teacher said, you can add a junction table inbetween to get rid off this many-to-many relationship so that we have a
-many-to-one relationship, then a one-to-many relationship which is valid.
-
-[Tables Needed]
-So for director/s: Directors, Movie_Directors, Movie
-So for writer/s: Writers, Movie_Writers, Movie
-So for cast: Cast, Movie_Cast, Movie
-So for genre/s: Genres, Movie_Genres, Movie
-
-Finally, what are all the tables we have, what would be their primary, foreign and composite keys (if any) ?
-
-[ALL TABLES]
-User, Movies, Directors, Movie_Directors, Writers, Movie_Writers, Cast, Movie_Cast, Genres, Movie_Genres, Comments, Ratings
-
-[KEYS NEEDED FOR EACH]
-
-[MAIN TABLES]
-User : Primary Key = {user_id}
-Movies: Primary Key = {movie_id}
-Directors: Primary Key = {director_id}
-Writers: Primary Key = {writer_id}
-Cast: Primary Key = {actor_id}
-Genres: Primary Key = {genre_id}
-
-Comments: Primary Key = {comment_id}, Foreign Keys = {movie_id, user_id, parent_comment_id}
-    - parent_comment_id is a "self-referential foreign key" that allows comments to reference other
-      comments (this should allow me to create the Reddit-like forum threads)
-
-    - the foreign keys here ensure that each comment is associated with a valid movie and user.
-
-Ratings: Primary Key = {rating_id}, Foreign Keys = {movie_id, user_id}
-    - the foreign keys here used to ensure ratings are made on a valid movie with a valid user
-
-[JUNCTION TABLES]
-Movie_Directors : Composite Key = {movie_id, director_id}, Foreign Keys = {movie_id, director_id}
-Movie_Writers : Composite Key = {movie_id, writer_id}, Foreign Keys = {movie_id, writer_id}
-Movie_Cast : Composite Key = {movie_id, actor_id}, Foreign Keys = {movie_id, actor_id}
-Movie_Genres : Composite Key = {movie_id, genre_id}, Foreign Keys = {movie_id, actor_id}
-
-    - We use a composite key for all of these junction tables because
-      it allows us to display the unique many-to-many relationship
-      these fields have with movies. For example, since Christopher Nolan
-      has only made one movie called "The Dark Knight",
-      the composite key maps him to the corresponding movie
-      (hence representing the unique relationship)
-
-FOR LOGIN SYSTEM USE HASH AND SALT
-THINK ABOUT OAuth For future login
-"""
-
 import sqlite3
 
 
@@ -93,7 +21,7 @@ class DBManager:
         self.runtime = runtime
         self.combined_rating = combined_rating
 
-        # we can have the same director more than once
+        # we can have these same elements more than once
         self.director_list = director_list
         self.writer_list = writer_list
         self.actor_list = actor_list
@@ -102,7 +30,12 @@ class DBManager:
         self.conn = sqlite3.connect("popcorn.db")
         self.cursor = self.conn.cursor()
 
-    def create_tables(self):
+        self.directors_ids = []
+        self.writers_ids = []
+        self.actors_ids= []
+        self.genres_ids = []
+
+    def create_users_table(self):
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS Users (
@@ -117,6 +50,7 @@ class DBManager:
         """
         )
 
+    def create_movies_table(self):
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS Movies (
@@ -130,6 +64,7 @@ class DBManager:
         """
         )
 
+    def create_directors_table(self):
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS Directors (
@@ -140,6 +75,7 @@ class DBManager:
         """
         )
 
+    def create_movie_director_table(self):
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS Movie_Directors (
@@ -152,6 +88,7 @@ class DBManager:
         """
         )
 
+    def create_writers_table(self):
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS Writers (
@@ -162,6 +99,7 @@ class DBManager:
         """
         )
 
+    def create_movie_writers_table(self):
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS Movie_Writers (
@@ -174,6 +112,7 @@ class DBManager:
         """
         )
 
+    def create_cast_table(self):
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS Cast (
@@ -184,6 +123,7 @@ class DBManager:
         """
         )
 
+    def create_movie_cast_table(self):
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS Movie_Cast (
@@ -196,6 +136,7 @@ class DBManager:
         """
         )
 
+    def create_genres_table(self):
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS Genres (
@@ -205,6 +146,7 @@ class DBManager:
         """
         )
 
+    def create_movie_genres_table(self):
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS Movie_Genres (
@@ -217,6 +159,7 @@ class DBManager:
         """
         )
 
+    def create_comments_table(self):
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS Comments (
@@ -233,6 +176,7 @@ class DBManager:
         """
         )
 
+    def create_ratings_table(self):
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS Ratings (
@@ -248,7 +192,7 @@ class DBManager:
         """
         )
 
-    def add_movie(self):
+    def insert_movie_table(self):
         self.cursor.execute(
             """
             INSERT INTO Movies(movie_name, release_year, age_rating, runtime, combined_rating)
@@ -262,142 +206,193 @@ class DBManager:
                 self.combined_rating,
             ),
         )
-        movie_id = self.cursor.lastrowid
+        self.movie_id = self.cursor.lastrowid
 
-        for director in self.director_list:
-            try:
-                self.cursor.execute(
-                    """
-                    INSERT INTO Directors (first_name, last_name) 
-                    VALUES (?, ?)
-                """,
-                    (director[0], director[1]),
-                )
-                director_id = self.cursor.lastrowid
-
-            except sqlite3.IntegrityError:
-                self.cursor.execute(
-                    """
-                    SELECT director_id FROM Directors WHERE first_name = ? AND last_name = ?
-                """,
-                    (director[0], director[1]),
-                )
-                result = self.cursor.fetchone()
-
-                if result:
-                    director_id = result[0]
-                else:
-                    raise RuntimeError(
-                        f"Failed to retrieve director_id for {director[0]} {director[1]}"
-                    )
-
+    def insert_directors_table(self, director):
+        try:
             self.cursor.execute(
                 """
+                INSERT INTO Directors (first_name, last_name) 
+                VALUES (?, ?)
+            """,
+                (director[0], director[1]),
+            )
+            self.directors_ids.append(self.cursor.lastrowid)
+
+        except sqlite3.IntegrityError:
+            self.cursor.execute(
+                """
+                SELECT director_id FROM Directors WHERE first_name = ? AND last_name = ?
+            """,
+                (director[0], director[1]),
+            )
+            result = self.cursor.fetchone()
+
+            if result:
+                self.directors_ids.append(result[0])
+            else:
+                raise RuntimeError(
+                    f"Failed to retrieve director_id for {director[0]} {director[1]}"
+                )
+
+    def link_movie_director(self, i):
+        self.cursor.execute(
+            """
                 INSERT INTO Movie_Directors (movie_id, director_id)
                 VALUES (?, ?)
             """,
-                (movie_id, director_id),
-            )
+            (self.movie_id, self.directors_ids[i]),
+        )
 
-        for writer in self.writer_list:
-            try:
-                self.cursor.execute(
-                    """
-                    INSERT INTO Writers (first_name, last_name) 
-                    VALUES (?, ?)
-                """,
-                    (writer[0], writer[1]),
-                )
-                writer_id = self.cursor.lastrowid
-
-            except sqlite3.IntegrityError:
-                self.cursor.execute(
-                    """
-                    SELECT writer_id FROM Writers WHERE first_name = ? AND last_name = ?
-                """,
-                    (writer[0], writer[1]),
-                )
-                result = self.cursor.fetchone()
-
-                if result:
-                    writer_id = result[0]
-                else:
-                    raise RuntimeError(
-                        f"Failed to retrieve writer_id for {writer[0]} {writer[1]}"
-                    )
-
+    def insert_writers_table(self, writer):
+        try:
             self.cursor.execute(
                 """
+                INSERT INTO Writers (first_name, last_name) 
+                VALUES (?, ?)
+            """,
+                (writer[0], writer[1]),
+            )
+            self.writers_ids.append(self.cursor.lastrowid)
+
+        except sqlite3.IntegrityError:
+            self.cursor.execute(
+                """
+                SELECT writer_id FROM Writers WHERE first_name = ? AND last_name = ?
+            """,
+                (writer[0], writer[1]),
+            )
+            result = self.cursor.fetchone()
+
+            if result:
+                self.writers_ids.append(result[0])
+
+            else:
+                raise RuntimeError(
+                    f"Failed to retrieve writer_id for {writer[0]} {writer[1]}"
+                )
+
+    def link_movie_writer(self, i):
+        self.cursor.execute(
+            """
                 INSERT INTO Movie_Writers (movie_id, writer_id)
                 VALUES (?, ?)
             """,
-                (movie_id, writer_id),
-            )
+            (self.movie_id, self.writers_ids[i]),
+        )
 
-        for actor in self.actor_list:
-            try:
-                self.cursor.execute(
-                    """
-                    INSERT INTO Cast (first_name, last_name)
-                    VALUES (?, ?)
-                """,
-                    (actor[0], actor[1]),
-                )
-                actor_id = self.cursor.lastrowid
-
-            except sqlite3.IntegrityError:
-                self.cursor.execute(
-                    """
-                    SELECT actor_id FROM Cast WHERE first_name = ? AND last_name = ?
-                """,
-                    (actor[0], actor[1]),
-                )
-                result = self.cursor.fetchone()
-
-                if result:
-                    actor_id = result[0]
-                else:
-                    raise RuntimeError(
-                        f"Failed to retrieve actor_id for {actor[0]} {actor[1]}"
-                    )
-
+    def insert_cast_table(self, actor):
+        try:
             self.cursor.execute(
                 """
+                INSERT INTO Cast (first_name, last_name)
+                VALUES (?, ?)
+            """,
+                (actor[0], actor[1]),
+            )
+            self.actors_ids.append(self.cursor.lastrowid)
+
+        except sqlite3.IntegrityError:
+            self.cursor.execute(
+                """
+                SELECT actor_id FROM Cast WHERE first_name = ? AND last_name = ?
+            """,
+                (actor[0], actor[1]),
+            )
+            result = self.cursor.fetchone()
+
+            if result:
+                self.actors_ids.append(result[0])
+            else:
+                raise RuntimeError(
+                    f"Failed to retrieve actor_id for {actor[0]} {actor[1]}"
+                )
+
+    def link_movie_cast(self, i):
+        self.cursor.execute(
+            """
                 INSERT INTO Movie_Cast (movie_id, actor_id)
                 VALUES (?, ?)
             """,
-                (movie_id, actor_id),
-            )
+            (self.movie_id, self.actors_ids[i]),
+        )
 
-        for genre in self.genre_list:
-            try:
-                self.cursor.execute(
-                    """
-                    INSERT INTO Genres (genre_name)
-                    VALUES (?)
-                """,
-                    (genre,),
-                )
-                genre_id = self.cursor.lastrowid
-
-            except sqlite3.IntegrityError:
-                self.cursor.execute(
-                    """
-                    SELECT genre_id FROM Genres WHERE genre_name = ?
-                """,
-                    (genre,),
-                )
-                result = self.cursor.fetchone()
-
-                if result:
-                    genre_id = result[0]
-                else:
-                    raise RuntimeError(f"Failed to retrieve genre_id for {genre}")
-
+    def insert_genres_table(self, genre):
+        try:
             self.cursor.execute(
                 """
+                INSERT INTO Genres (genre_name)
+                VALUES (?)
+            """,
+                (genre,),
+            )
+            self.genres_ids.append(self.cursor.lastrowid)
+
+        except sqlite3.IntegrityError:
+            self.cursor.execute(
+                """
+                SELECT genre_id FROM Genres WHERE genre_name = ?
+            """,
+                (genre,),
+            )
+            result = self.cursor.fetchone()
+
+            if result:
+                self.genres_ids.append(result[0])
+            else:
+                raise RuntimeError(f"Failed to retrieve genre_id for {genre}")
+
+    def link_movie_genre_table(self, i):
+        self.cursor.execute(
+            """
                 INSERT INTO Movie_Genres (movie_id, genre_id)
                 VALUES (?, ?) 
             """,
-                (movie_id, genre_id),
-            )
+            (self.movie_id, self.genres_ids[i]),
+        )
+
+    def insert_comments_table(self):
+        pass
+
+    def insert_ratings_table(self):
+        pass
+
+    def create_tables(self):
+        self.create_users_table()
+
+        self.create_movies_table()
+
+        self.create_directors_table()
+        self.create_movie_director_table()
+
+        self.create_writers_table()
+        self.create_movie_writers_table()
+
+        self.create_cast_table()
+        self.create_movie_cast_table()
+
+        self.create_genres_table()
+        self.create_movie_genres_table()
+
+        self.create_comments_table()
+
+        self.create_ratings_table()
+
+    def add_movie(self):
+        self.insert_movie_table()
+
+        for i in range(len(self.director_list)):
+            self.insert_directors_table(self.director_list[i])
+            self.link_movie_director(i)
+
+        for i in range(len(self.writer_list)):
+            self.insert_writers_table(self.writer_list[i])
+            self.link_movie_writer(i)
+
+        for i in range(len(self.actor_list)):
+            self.insert_cast_table(self.actor_list[i])
+            self.link_movie_cast(i)
+
+        for i in range(len(self.genre_list)):
+            self.insert_genres_table(self.genre_list[i])
+            self.link_movie_genre_table(i)
