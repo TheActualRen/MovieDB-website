@@ -92,6 +92,8 @@ class DBManager:
         self.age_rating = age_rating
         self.runtime = runtime
         self.combined_rating = combined_rating
+
+        # we can have the same director more than once
         self.director_list = director_list
         self.writer_list = writer_list
         self.actor_list = actor_list
@@ -247,11 +249,6 @@ class DBManager:
         )
 
     def add_movie(self):
-        # director_ids = []
-        # wrtiers_ids = []
-        # actors_ids = []
-        # genre_ids = []
-
         self.cursor.execute(
             """
             INSERT INTO Movies(movie_name, release_year, age_rating, runtime, combined_rating)
@@ -268,14 +265,31 @@ class DBManager:
         movie_id = self.cursor.lastrowid
 
         for director in self.director_list:
-            self.cursor.execute(
-                """
-                INSERT INTO Directors (first_name, last_name) 
-                VALUES (?, ?)
-            """,
-                (director[0], director[1]),
-            )
-            director_id = self.cursor.lastrowid
+            try:
+                self.cursor.execute(
+                    """
+                    INSERT INTO Directors (first_name, last_name) 
+                    VALUES (?, ?)
+                """,
+                    (director[0], director[1]),
+                )
+                director_id = self.cursor.lastrowid
+
+            except sqlite3.IntegrityError:
+                self.cursor.execute(
+                    """
+                    SELECT director_id FROM Directors WHERE first_name = ? AND last_name = ?
+                """,
+                    (director[0], director[1]),
+                )
+                result = self.cursor.fetchone()
+
+                if result:
+                    director_id = result[0]
+                else:
+                    raise RuntimeError(
+                        f"Failed to retrieve director_id for {director[0]} {director[1]}"
+                    )
 
             self.cursor.execute(
                 """
@@ -286,14 +300,31 @@ class DBManager:
             )
 
         for writer in self.writer_list:
-            self.cursor.execute(
-                """
-                INSERT INTO Writers (first_name, last_name) 
-                VALUES (?, ?)
-            """,
-                (writer[0], writer[1]),
-            )
-            writer_id = self.cursor.lastrowid
+            try:
+                self.cursor.execute(
+                    """
+                    INSERT INTO Writers (first_name, last_name) 
+                    VALUES (?, ?)
+                """,
+                    (writer[0], writer[1]),
+                )
+                writer_id = self.cursor.lastrowid
+
+            except sqlite3.IntegrityError:
+                self.cursor.execute(
+                    """
+                    SELECT writer_id FROM Writers WHERE first_name = ? AND last_name = ?
+                """,
+                    (writer[0], writer[1]),
+                )
+                result = self.cursor.fetchone()
+
+                if result:
+                    writer_id = result[0]
+                else:
+                    raise RuntimeError(
+                        f"Failed to retrieve writer_id for {writer[0]} {writer[1]}"
+                    )
 
             self.cursor.execute(
                 """
@@ -304,14 +335,31 @@ class DBManager:
             )
 
         for actor in self.actor_list:
-            self.cursor.execute(
-                """
-                INSERT INTO Cast (first_name, last_name)
-                VALUES (?, ?)
-            """,
-                (actor[0], actor[1]),
-            )
-            actor_id = self.cursor.lastrowid
+            try:
+                self.cursor.execute(
+                    """
+                    INSERT INTO Cast (first_name, last_name)
+                    VALUES (?, ?)
+                """,
+                    (actor[0], actor[1]),
+                )
+                actor_id = self.cursor.lastrowid
+
+            except sqlite3.IntegrityError:
+                self.cursor.execute(
+                    """
+                    SELECT actor_id FROM Cast WHERE first_name = ? AND last_name = ?
+                """,
+                    (actor[0], actor[1]),
+                )
+                result = self.cursor.fetchone()
+
+                if result:
+                    actor_id = result[0]
+                else:
+                    raise RuntimeError(
+                        f"Failed to retrieve actor_id for {actor[0]} {actor[1]}"
+                    )
 
             self.cursor.execute(
                 """
@@ -322,14 +370,29 @@ class DBManager:
             )
 
         for genre in self.genre_list:
-            self.cursor.execute(
-                """
-                INSERT INTO Genres (genre_name)
-                VALUES (?)
-            """,
-                (genre, ),
-            )
-            genre_id = self.cursor.lastrowid
+            try:
+                self.cursor.execute(
+                    """
+                    INSERT INTO Genres (genre_name)
+                    VALUES (?)
+                """,
+                    (genre,),
+                )
+                genre_id = self.cursor.lastrowid
+
+            except sqlite3.IntegrityError:
+                self.cursor.execute(
+                    """
+                    SELECT genre_id FROM Genres WHERE genre_name = ?
+                """,
+                    (genre,),
+                )
+                result = self.cursor.fetchone()
+
+                if result:
+                    genre_id = result[0]
+                else:
+                    raise RuntimeError(f"Failed to retrieve genre_id for {genre}")
 
             self.cursor.execute(
                 """
