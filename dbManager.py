@@ -30,10 +30,10 @@ class DBManager:
         self.conn = sqlite3.connect("popcorn.db")
         self.cursor = self.conn.cursor()
 
-        self.directors_ids = []
-        self.writers_ids = []
-        self.actors_ids= []
-        self.genres_ids = []
+        self.directors_ids: list[int] = []
+        self.writers_ids: list[int] = []
+        self.actors_ids: list[int] = []
+        self.genres_ids: list[int] = []
 
     def create_users_table(self):
         self.cursor.execute(
@@ -50,6 +50,8 @@ class DBManager:
         """
         )
 
+        self.conn.commit()
+
     def create_movies_table(self):
         self.cursor.execute(
             """
@@ -64,6 +66,8 @@ class DBManager:
         """
         )
 
+        self.conn.commit()
+
     def create_directors_table(self):
         self.cursor.execute(
             """
@@ -74,6 +78,8 @@ class DBManager:
             );
         """
         )
+
+        self.conn.commit()
 
     def create_movie_director_table(self):
         self.cursor.execute(
@@ -88,6 +94,8 @@ class DBManager:
         """
         )
 
+        self.conn.commit()
+
     def create_writers_table(self):
         self.cursor.execute(
             """
@@ -98,6 +106,8 @@ class DBManager:
             );
         """
         )
+
+        self.conn.commit()
 
     def create_movie_writers_table(self):
         self.cursor.execute(
@@ -112,6 +122,8 @@ class DBManager:
         """
         )
 
+        self.conn.commit()
+
     def create_cast_table(self):
         self.cursor.execute(
             """
@@ -122,6 +134,8 @@ class DBManager:
             );
         """
         )
+
+        self.conn.commit()
 
     def create_movie_cast_table(self):
         self.cursor.execute(
@@ -136,6 +150,8 @@ class DBManager:
         """
         )
 
+        self.conn.commit()
+
     def create_genres_table(self):
         self.cursor.execute(
             """
@@ -145,6 +161,8 @@ class DBManager:
             );
         """
         )
+
+        self.conn.commit()
 
     def create_movie_genres_table(self):
         self.cursor.execute(
@@ -158,6 +176,8 @@ class DBManager:
             );
         """
         )
+
+        self.conn.commit()
 
     def create_comments_table(self):
         self.cursor.execute(
@@ -176,6 +196,8 @@ class DBManager:
         """
         )
 
+        self.conn.commit()
+
     def create_ratings_table(self):
         self.cursor.execute(
             """
@@ -191,6 +213,8 @@ class DBManager:
             );
         """
         )
+
+        self.conn.commit()
 
     def insert_movie_table(self):
         self.cursor.execute(
@@ -208,69 +232,74 @@ class DBManager:
         )
         self.movie_id = self.cursor.lastrowid
 
+        self.conn.commit()
+
     def insert_directors_table(self, director):
-        try:
-            self.cursor.execute(
-                """
-                INSERT INTO Directors (first_name, last_name) 
-                VALUES (?, ?)
-            """,
-                (director[0], director[1]),
-            )
-            self.directors_ids.append(self.cursor.lastrowid)
+        self.cursor.execute(
+            """
+            INSERT OR IGNORE INTO Directors(first_name, last_name)
+            VALUES (?, ?)
+        """,
+            (director[0], director[1]),
+        )
 
-        except sqlite3.IntegrityError:
-            self.cursor.execute(
-                """
-                SELECT director_id FROM Directors WHERE first_name = ? AND last_name = ?
-            """,
-                (director[0], director[1]),
-            )
-            result = self.cursor.fetchone()
+        self.cursor.execute(
+            """
+            SELECT director_id FROM Directors WHERE first_name = ? AND last_name = ?
+        """,
+            (director[0], director[1]),
+        )
+        result = self.cursor.fetchone()
 
-            if result:
-                self.directors_ids.append(result[0])
-            else:
-                raise RuntimeError(
-                    f"Failed to retrieve director_id for {director[0]} {director[1]}"
-                )
+        if result:
+            self.directors_ids.append(result[0])
+
+        else:
+            raise RuntimeError(
+                f"Failed to retrieve director_id for {director[0]} {director[1]}"
+            )
+
+        self.conn.commit()
 
     def link_movie_director(self, i):
         self.cursor.execute(
             """
                 INSERT INTO Movie_Directors (movie_id, director_id)
                 VALUES (?, ?)
-            """,
+        """,
             (self.movie_id, self.directors_ids[i]),
         )
 
+        self.conn.commit()
+
     def insert_writers_table(self, writer):
-        try:
-            self.cursor.execute(
-                """
-                INSERT INTO Writers (first_name, last_name) 
-                VALUES (?, ?)
-            """,
-                (writer[0], writer[1]),
+        self.cursor.execute(
+            """
+            INSERT OR IGNORE Writers (first_name, last_name) 
+            VALUES (?, ?)
+        """,
+            (writer[0], writer[1]),
+        )
+
+        self.conn.commit()
+
+        self.cursor.execute(
+            """
+            SELECT writer_id FROM Writers WHERE first_name = ? AND last_name = ?
+        """,
+            (writer[0], writer[1]),
+        )
+        result = self.cursor.fetchone()
+
+        if result:
+            self.writers_ids.append(result[0])
+
+        else:
+            raise RuntimeError(
+                f"Failed to retrieve writer_id for {writer[0]} {writer[1]}"
             )
-            self.writers_ids.append(self.cursor.lastrowid)
 
-        except sqlite3.IntegrityError:
-            self.cursor.execute(
-                """
-                SELECT writer_id FROM Writers WHERE first_name = ? AND last_name = ?
-            """,
-                (writer[0], writer[1]),
-            )
-            result = self.cursor.fetchone()
-
-            if result:
-                self.writers_ids.append(result[0])
-
-            else:
-                raise RuntimeError(
-                    f"Failed to retrieve writer_id for {writer[0]} {writer[1]}"
-                )
+        self.conn.commit()
 
     def link_movie_writer(self, i):
         self.cursor.execute(
@@ -281,32 +310,32 @@ class DBManager:
             (self.movie_id, self.writers_ids[i]),
         )
 
+        self.conn.commit()
+
     def insert_cast_table(self, actor):
-        try:
-            self.cursor.execute(
-                """
-                INSERT INTO Cast (first_name, last_name)
-                VALUES (?, ?)
-            """,
-                (actor[0], actor[1]),
-            )
-            self.actors_ids.append(self.cursor.lastrowid)
+        self.cursor.execute(
+            """
+            INSERT OR IGNORE INTO Cast (first_name, last_name)
+            VALUES (?, ?)
+        """,
+            (actor[0], actor[1]),
+        )
 
-        except sqlite3.IntegrityError:
-            self.cursor.execute(
-                """
-                SELECT actor_id FROM Cast WHERE first_name = ? AND last_name = ?
-            """,
-                (actor[0], actor[1]),
-            )
-            result = self.cursor.fetchone()
+        self.cursor.execute(
+            """
+            SELECT actor_id FROM Cast WHERE first_name = ? AND last_name = ?
+        """,
+            (actor[0], actor[1]),
+        )
+        result = self.cursor.fetchone()
 
-            if result:
-                self.actors_ids.append(result[0])
-            else:
-                raise RuntimeError(
-                    f"Failed to retrieve actor_id for {actor[0]} {actor[1]}"
-                )
+        if result:
+            self.actors_ids.append(result[0])
+
+        else:
+            raise RuntimeError(f"Failed to retrieve actor_id for {actor[0]} {actor[1]}")
+
+        self.conn.commit()
 
     def link_movie_cast(self, i):
         self.cursor.execute(
@@ -317,30 +346,32 @@ class DBManager:
             (self.movie_id, self.actors_ids[i]),
         )
 
+        self.conn.commit()
+
     def insert_genres_table(self, genre):
-        try:
-            self.cursor.execute(
-                """
-                INSERT INTO Genres (genre_name)
-                VALUES (?)
-            """,
-                (genre,),
-            )
-            self.genres_ids.append(self.cursor.lastrowid)
+        self.cursor.execute(
+            """
+            INSERT OR IGNORE INTO Genres (genre_name)
+            VALUES (?)
+        """,
+            (genre,),
+        )
 
-        except sqlite3.IntegrityError:
-            self.cursor.execute(
-                """
-                SELECT genre_id FROM Genres WHERE genre_name = ?
-            """,
-                (genre,),
-            )
-            result = self.cursor.fetchone()
+        self.cursor.execute(
+            """
+            SELECT genre_id FROM Genres WHERE genre_name = ?
+        """,
+            (genre,),
+        )
+        result = self.cursor.fetchone()
 
-            if result:
-                self.genres_ids.append(result[0])
-            else:
-                raise RuntimeError(f"Failed to retrieve genre_id for {genre}")
+        if result:
+            self.genres_ids.append(result[0])
+
+        else:
+            raise RuntimeError(f"Failed to retrieve genre_id for {genre}")
+
+        self.conn.commit()
 
     def link_movie_genre_table(self, i):
         self.cursor.execute(
@@ -350,6 +381,8 @@ class DBManager:
             """,
             (self.movie_id, self.genres_ids[i]),
         )
+
+        self.conn.commit()
 
     def insert_comments_table(self):
         pass
