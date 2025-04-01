@@ -61,12 +61,26 @@ class DBManager:
                 release_year INTEGER, 
                 age_rating TEXT,
                 runtime INTEGER,
-                combined_rating REAL DEFAULT 0
+                combined_rating REAL DEFAULT 0,
+                UNIQUE(movie_name, release_year, runtime)
             );
         """
         )
-
         self.conn.commit()
+
+    def movie_exists(self):
+        self.cursor.execute(
+            """
+            SELECT COUNT(*) FROM Movies
+            WHERE movie_name = ?
+            AND release_year = ?
+            AND runtime = ?
+        """,
+            (self.movie_name, self.release_year, self.runtime),
+        )
+        self.conn.commit()
+        return self.cursor.fetchone()[0] > 0
+
 
     def create_directors_table(self):
         self.cursor.execute(
@@ -411,7 +425,11 @@ class DBManager:
 
         self.create_ratings_table()
 
-    def add_movie(self):
+    def add_movie(self) -> bool:
+        if self.movie_exists():
+            print(f"Movie {self.movie_name} ({self.release_year}) already exists")
+            return False
+
         self.insert_movie_table()
 
         for i in range(len(self.director_list)):
@@ -429,3 +447,5 @@ class DBManager:
         for i in range(len(self.genre_list)):
             self.insert_genres_table(self.genre_list[i])
             self.link_movie_genre_table(i)
+
+        return True

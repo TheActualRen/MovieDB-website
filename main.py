@@ -16,7 +16,7 @@ if __name__ == "__main__":
     )
 
     myManager.create_tables()
-    # myManager.add_movie()
+    myManager.add_movie()
 
     myManager.cursor.execute(
         """
