@@ -124,10 +124,10 @@ class DBManager:
 
         self.conn.commit()
 
-    def create_cast_table(self):
+    def create_actors_table(self):
         self.cursor.execute(
             """
-            CREATE TABLE IF NOT EXISTS Cast (
+            CREATE TABLE IF NOT EXISTS Actors (
                 actor_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 first_name TEXT,
                 last_name TEXT
@@ -137,10 +137,10 @@ class DBManager:
 
         self.conn.commit()
 
-    def create_movie_cast_table(self):
+    def create_movie_actors_table(self):
         self.cursor.execute(
             """
-            CREATE TABLE IF NOT EXISTS Movie_Cast (
+            CREATE TABLE IF NOT EXISTS Movie_Actors (
                 movie_id INTEGER,
                 actor_id INTEGER,
                 PRIMARY KEY (movie_id, actor_id),
@@ -275,7 +275,7 @@ class DBManager:
     def insert_writers_table(self, writer):
         self.cursor.execute(
             """
-            INSERT OR IGNORE Writers (first_name, last_name) 
+            INSERT OR IGNORE INTO Writers (first_name, last_name) 
             VALUES (?, ?)
         """,
             (writer[0], writer[1]),
@@ -315,7 +315,7 @@ class DBManager:
     def insert_cast_table(self, actor):
         self.cursor.execute(
             """
-            INSERT OR IGNORE INTO Cast (first_name, last_name)
+            INSERT OR IGNORE INTO Actors (first_name, last_name)
             VALUES (?, ?)
         """,
             (actor[0], actor[1]),
@@ -323,7 +323,7 @@ class DBManager:
 
         self.cursor.execute(
             """
-            SELECT actor_id FROM Cast WHERE first_name = ? AND last_name = ?
+            SELECT actor_id FROM Actors WHERE first_name = ? AND last_name = ?
         """,
             (actor[0], actor[1]),
         )
@@ -337,10 +337,10 @@ class DBManager:
 
         self.conn.commit()
 
-    def link_movie_cast(self, i):
+    def link_movie_actors(self, i):
         self.cursor.execute(
             """
-                INSERT INTO Movie_Cast (movie_id, actor_id)
+                INSERT INTO Movie_Actors(movie_id, actor_id)
                 VALUES (?, ?)
             """,
             (self.movie_id, self.actors_ids[i]),
@@ -401,8 +401,8 @@ class DBManager:
         self.create_writers_table()
         self.create_movie_writers_table()
 
-        self.create_cast_table()
-        self.create_movie_cast_table()
+        self.create_actors_table()
+        self.create_movie_actors_table()
 
         self.create_genres_table()
         self.create_movie_genres_table()
@@ -424,7 +424,7 @@ class DBManager:
 
         for i in range(len(self.actor_list)):
             self.insert_cast_table(self.actor_list[i])
-            self.link_movie_cast(i)
+            self.link_movie_actors(i)
 
         for i in range(len(self.genre_list)):
             self.insert_genres_table(self.genre_list[i])
