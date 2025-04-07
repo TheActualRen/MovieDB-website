@@ -35,5 +35,44 @@
       ["James", "Caan"]
     ],
     "genre_list": ["Tragedy", "Gangster", "Crime", "Drama"]
+  },
+
+  {
+    "movie_name": "The Dark Knight",
+    "release_year": 2008, 
+    "age_rating": "12A",
+    "runtime": 152,
+    "combined_rating": 9.0,
+    "director_list": ["Christopher", "Nolan"],
+    "writer_list": [
+      ["Jonathan", "Nolan"],
+      ["Christopher", "Nolan"],
+      ["David S.", "Goyer"]
+    ],
+    "actor_list": [
+      ["Christian", "Bale"],
+      ["Heath", "Ledger"],
+      ["Aaron", "Eckhart"]
+    ],
+    "genre_list": ["Superhero", "Action", "Crime", "Thriller", "Drama"]
+  },
+
+  {
+    "movie_name": "The Godfather Part II",
+    "release_year": 1974,
+    "age_rating": "X",
+    "runtime": 202,
+    "combined_rating": 9.0,
+    "director_list": [["Francis Ford", "Coppola"]],
+    "writer_list": [
+      ["Francis Ford", "Coppola"],
+      ["Mario", "Puzo"]
+    ],
+    "actor_list": [
+      ["Al", "Pacino"],
+      ["Robert", "De Niro"],
+      ["Robert", "Duvall"]
+    ], 
+	"genre_list": ["Gangster", "Tragedy", "Crime"]
   }
 ]
