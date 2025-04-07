@@ -1,0 +1,39 @@
+[
+  {
+    "movie_name": "The Shawshank Redemption",
+    "release_year": 1994,
+    "age_rating": "15",
+    "runtime": 144,
+    "combined_rating": 9.3,
+    "director_list": [["Frank", "Darabont"]],
+    "writer_list": [
+      ["Stephen", "King"],
+      ["Frank", "Darabont"]
+    ],
+    "actor_list": [
+      ["Tim", "Robbins"],
+      ["Morgan", "Freeman"],
+      ["Bob", "Gunton"]
+    ],
+    "genre_list": ["Prison Drama", "Drama"]
+  },
+
+  {
+    "movie_name": "The Godfather",
+    "release_year": 1972,
+    "age_rating": "15",
+    "runtime": 175,
+    "combined_rating": 9.2,
+    "director_list": [["Francis Ford", "Coppola"]],
+    "writer_list": [
+      ["Mario", "Puzo"],
+      ["Francis Ford", "Coppola"]
+    ],
+    "actor_list": [
+      ["Marlon", "Brando"],
+      ["Al", "Pacino"],
+      ["James", "Caan"]
+    ],
+    "genre_list": ["Tragedy", "Gangster", "Crime", "Drama"]
+  }
+]
