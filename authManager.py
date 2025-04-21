@@ -1,6 +1,6 @@
 import hashlib
-import sqlite3
 import os
+import sqlite3
 
 
 class AuthManager:
@@ -25,10 +25,10 @@ class AuthManager:
         self.cursor = self.conn.cursor()
 
     def hash_password(self) -> str:
-        hashed = hashlib.pbkdf2_hmac("sha256", self.password.encode(), self.salt, 100_000)
+        hashed = hashlib.pbkdf2_hmac(
+            "sha256", self.password.encode(), self.salt, 100_000
+        )
         return self.salt.hex() + ":" + hashed.hex()
-
-
 
     def insert_user_table(self):
         self.cursor.execute(

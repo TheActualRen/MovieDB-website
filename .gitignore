@@ -1,3 +1,5 @@
 # Ignore Python cache
 __pycache__/
 *.pyc
+
+popcorn.db
