@@ -13,6 +13,7 @@ class DBManager:
         writer_list: list[list[str]],
         actor_list: list[list[str]],
         genre_list: list[str],
+        poster_path = None
     ):
 
         self.movie_name = movie_name
@@ -26,6 +27,7 @@ class DBManager:
         self.writer_list = writer_list
         self.actor_list = actor_list
         self.genre_list = genre_list
+        self.poster_path = poster_path
 
         self.conn = sqlite3.connect("popcorn.db")
         self.cursor = self.conn.cursor()
@@ -62,6 +64,7 @@ class DBManager:
                 age_rating TEXT,
                 runtime INTEGER,
                 combined_rating REAL DEFAULT 0,
+                poster TEXT,
                 UNIQUE(movie_name, release_year, runtime)
             );
         """
@@ -80,7 +83,6 @@ class DBManager:
         )
         self.conn.commit()
         return self.cursor.fetchone()[0] > 0
-
 
     def create_directors_table(self):
         self.cursor.execute(
@@ -159,7 +161,7 @@ class DBManager:
                 actor_id INTEGER,
                 PRIMARY KEY (movie_id, actor_id),
                 FOREIGN KEY (movie_id) REFERENCES Movies(movie_id) ON DELETE CASCADE,
-                FOREIGN KEY (actor_id) REFERENCES Cast(actor_id) ON DELETE CASCADE
+                FOREIGN KEY (actor_id) REFERENCES Actors(actor_id) ON DELETE CASCADE
             );
         """
         )
@@ -230,11 +232,11 @@ class DBManager:
 
         self.conn.commit()
 
-    def insert_movie_table(self):
+    def insert_movie_table(self, poster_image_path=None):
         self.cursor.execute(
             """
-            INSERT INTO Movies(movie_name, release_year, age_rating, runtime, combined_rating)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO Movies(movie_name, release_year, age_rating, runtime, combined_rating, poster)
+            VALUES (?, ?, ?, ?, ?, ?)
         """,
             (
                 self.movie_name,
@@ -242,6 +244,7 @@ class DBManager:
                 self.age_rating,
                 self.runtime,
                 self.combined_rating,
+                self.poster_path,
             ),
         )
         self.movie_id = self.cursor.lastrowid
@@ -425,12 +428,12 @@ class DBManager:
 
         self.create_ratings_table()
 
-    def add_movie(self) -> bool:
+    def add_movie(self, poster_image_path=None) -> bool:
         if self.movie_exists():
             print(f"Movie {self.movie_name} ({self.release_year}) already exists")
             return False
 
-        self.insert_movie_table()
+        self.insert_movie_table(poster_image_path)
 
         for i in range(len(self.director_list)):
             self.insert_directors_table(self.director_list[i])
