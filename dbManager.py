@@ -13,7 +13,7 @@ class DBManager:
         writer_list: list[list[str]],
         actor_list: list[list[str]],
         genre_list: list[str],
-        poster_path = None
+        poster_path=None,
     ):
 
         self.movie_name = movie_name
@@ -90,7 +90,8 @@ class DBManager:
             CREATE TABLE IF NOT EXISTS Directors (
                 director_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 first_name TEXT,
-                last_name TEXT
+                last_name TEXT,
+                UNIQUE(first_name, last_name)
             );
         """
         )
@@ -118,7 +119,8 @@ class DBManager:
             CREATE TABLE IF NOT EXISTS Writers (
                 writer_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 first_name TEXT,
-                last_name TEXT
+                last_name TEXT,
+                UNIQUE(first_name, last_name)
             );
         """
         )
@@ -146,7 +148,8 @@ class DBManager:
             CREATE TABLE IF NOT EXISTS Actors (
                 actor_id INTEGER PRIMARY KEY AUTOINCREMENT,
                 first_name TEXT,
-                last_name TEXT
+                last_name TEXT,
+                UNIQUE(first_name, last_name)
             );
         """
         )
@@ -232,10 +235,22 @@ class DBManager:
 
         self.conn.commit()
 
-    def insert_movie_table(self, poster_image_path=None):
+    def insert_movie_table(self):
+        if self.movie_exists():
+            print(f"Movie {self.movie_name} ({self.release_year}) already exists")
+
+            self.cursor.execute(
+                """
+                SELECT movie_id FROM Movies WHERE movie_name = ? AND release_year = ? AND runtime = ?
+            """,
+                (self.movie_name, self.release_year, self.runtime),
+            )
+            self.movie_id = self.cursor.fetchone()[0]
+            return
+
         self.cursor.execute(
             """
-            INSERT INTO Movies(movie_name, release_year, age_rating, runtime, combined_rating, poster)
+            INSERT OR IGNORE INTO Movies(movie_name, release_year, age_rating, runtime, combined_rating, poster)
             VALUES (?, ?, ?, ?, ?, ?)
         """,
             (
@@ -281,7 +296,7 @@ class DBManager:
     def link_movie_director(self, i):
         self.cursor.execute(
             """
-                INSERT INTO Movie_Directors (movie_id, director_id)
+                INSERT OR IGNORE INTO Movie_Directors (movie_id, director_id)
                 VALUES (?, ?)
         """,
             (self.movie_id, self.directors_ids[i]),
@@ -321,7 +336,7 @@ class DBManager:
     def link_movie_writer(self, i):
         self.cursor.execute(
             """
-                INSERT INTO Movie_Writers (movie_id, writer_id)
+                INSERT OR IGNORE INTO Movie_Writers (movie_id, writer_id)
                 VALUES (?, ?)
             """,
             (self.movie_id, self.writers_ids[i]),
@@ -428,12 +443,12 @@ class DBManager:
 
         self.create_ratings_table()
 
-    def add_movie(self, poster_image_path=None) -> bool:
+    def add_movie(self) -> bool:
         if self.movie_exists():
             print(f"Movie {self.movie_name} ({self.release_year}) already exists")
             return False
 
-        self.insert_movie_table(poster_image_path)
+        self.insert_movie_table()
 
         for i in range(len(self.director_list)):
             self.insert_directors_table(self.director_list[i])
