@@ -23,10 +23,16 @@ if __name__ == "__main__":
         manager.conn.close()  
 
     # Displays all entries at once after processing the movies
+    # if movies:
+    #     display_manager = DBManager(**movies[0])
+    #     display_manager.display_entry()
+    #     display_manager.conn.close()
+
+    # Display all entries in a table
     if movies:
-        display_manager = DBManager(**movies[0])
-        display_manager.display_entry()
-        display_manager.conn.close()
+        db = DBManager(**movies[0])
+        db.display_table()
+        db.conn.close()
 
 
     myAuthManager = AuthManager(

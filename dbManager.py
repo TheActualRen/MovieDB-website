@@ -497,5 +497,147 @@ class DBManager:
 
         rows = self.cursor.fetchall()
 
+        if not rows:
+            print("No Movies Found")
+            return
+
         for row in rows:
             print(row)
+
+    def wrap_text(self, text, width):
+        if text == "N/A":
+            return ["N/A"]
+
+        lines = []
+        current_line = []
+        current_length = 0
+        parts = text.split(", ")
+
+        for part in parts:
+            part_length = len(part)
+
+            if current_line and (current_length + part_length + 2 > width):
+                lines.append(", ".join(current_line))
+                current_line = [part]
+                current_length = part_length
+            else:
+                current_line.append(part)
+                current_length += part_length + 2
+
+        if current_line:
+            lines.append(", ".join(current_line))
+
+        truncated = []
+        for line in lines:
+            if len(line) > width:
+                truncated.append(line[: width - 3] + "...")
+            else:
+                truncated.append(line)
+
+        return truncated
+
+    def display_table(self):
+        self.cursor.execute(
+            """
+                SELECT
+                    m.movie_name,
+                    m.release_year,
+                    m.age_rating,
+                    m.runtime,
+                    m.combined_rating,
+                    GROUP_CONCAT(DISTINCT d.first_name || ' ' || d.last_name) AS directors,
+                    GROUP_CONCAT(DISTINCT a.first_name || ' ' || a.last_name) AS actors,
+                    GROUP_CONCAT(DISTINCT w.first_name || ' ' || w.last_name) AS writers,
+                    GROUP_CONCAT(DISTINCT g.genre_name) AS genres
+            FROM Movies m
+            LEFT JOIN Movie_Directors md ON m.movie_id = md.movie_id
+            LEFT JOIN Directors d ON md.director_id = d.director_id
+            LEFT JOIN Movie_Actors ma ON m.movie_id = ma.movie_id
+            LEFT JOIN Actors a ON ma.actor_id = a.actor_id
+            LEFT JOIN Movie_Writers mw ON m.movie_id = mw.movie_id
+            LEFT JOIN Writers w ON mw.writer_id = w.writer_id
+            LEFT JOIN Movie_Genres mg ON m.movie_id = mg.movie_id
+            LEFT JOIN Genres g ON mg.genre_id = g.genre_id
+            GROUP BY m.movie_id
+            
+            """
+        )
+
+        rows = self.cursor.fetchall()
+
+        if not rows:
+            print("No Movies Found")
+            return
+
+        headers = [
+            "Movie",
+            "Release Year",
+            "Age Rating",
+            "Runtime (mins)",
+            "Rating",
+            "Directors",
+            "Actors",
+            "Writers",
+            "Genres",
+        ]
+
+        wrap_columns = {5: 20, 6: 20, 7: 20, 8: 20}
+
+        all_display_rows = []
+
+        for row in rows:
+            processed_row = []
+
+            for item in row:
+                if item is None or str(item).strip() == "":
+                    processed_row.append("N/A")
+                else:
+                    processed_row.append(str(item))
+
+            wrapped = {}
+            max_lines = 0
+            for col, width in wrap_columns.items():
+                content = processed_row[col]
+                wrapped_lines = self.wrap_text(content, width)
+                wrapped[col] = wrapped_lines
+                max_lines = max(max_lines, len(wrapped_lines))
+
+            for line_num in range(max_lines):
+                display_row = []
+                for col_idx in range(len(processed_row)):
+                    if col_idx in wrap_columns:
+                        if line_num < len(wrapped[col_idx]):
+                            display_row.append(wrapped[col_idx][line_num])
+                        else:
+                            display_row.append("")
+                    else:
+                        if line_num == 0:
+                            display_row.append(processed_row[col_idx])
+                        else:
+                            display_row.append("")
+
+                all_display_rows.append(display_row)
+
+        column_widths = []
+
+        for i in range(len(headers)):
+            max_len = len(headers[i])
+
+            for row in all_display_rows:
+                if i < len(row):
+                    max_len = max(max_len, len(row[i]))
+            column_widths.append(max_len + 2) # + 2 for padding
+
+        format_str = " | ".join([f"{{:<{width}}}" for width in column_widths])
+
+        divider = "-" * (sum(column_widths) + 3 * (len(headers) - 1))
+        print("\n" + divider)
+        print(format_str.format(*headers))
+        print(divider)
+
+
+        for row in all_display_rows:
+            print(format_str.format(*row))
+
+        print(divider + "\n")
+
