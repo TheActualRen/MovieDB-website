@@ -7,3 +7,6 @@ popcorn.db
 
 # Ignore Poster stuff
 posters/
+
+#ignore movies.json file
+movies.json

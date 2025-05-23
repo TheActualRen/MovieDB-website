@@ -1,69 +1,9 @@
-So what do I need in my database.
+Got the db mostly functional now
 
-Login / Sign-Up system:
-    user_id, first_name, last_name, username, password (that must be hashed), email, state (like are they banned or not)
+I want to add a cli script that basically allows me to view all the movies in the db at any given time
+This may work similar to pandas how we can show the first few entries
+last few entries
+or all entries
 
-Movie Stuff:
-    movie_id, movie_name, release_year, age_rating, runtime (best probs in minutes), rating, director/s, writer/s, cast, genre/s
-
-
-No why am I struggling to make this database.
-
-1) Values like director/s, writer/s, genre/s can have multiple values, so we can't store them in the same table
-2) Since I can't store them in the same table, how do I go about seperating the tables.
-3) Once seperating the tables, how can I connect all the tables - what must be a primary key, foreign key, do I need composite keys?
-   (The hardest part in my mind atm)
-
-How Do I go about fixing these problems?
-
-So the main issue with having multiple director/s, writer/s, cast and genre/s under one movie table is that a many-to-many relationship is created
-between the movie and the respective fields.
-
-From school, I remember that my teacher said, you can add a junction table inbetween to get rid off this many-to-many relationship so that we have a
-many-to-one relationship, then a one-to-many relationship which is valid.
-
-[Tables Needed]
-So for director/s: Directors, Movie_Directors, Movie
-So for writer/s: Writers, Movie_Writers, Movie
-So for cast: Cast, Movie_Cast, Movie
-So for genre/s: Genres, Movie_Genres, Movie
-
-Finally, what are all the tables we have, what would be their primary, foreign and composite keys (if any) ?
-
-[ALL TABLES]
-User, Movies, Directors, Movie_Directors, Writers, Movie_Writers, Cast, Movie_Cast, Genres, Movie_Genres, Comments, Ratings
-
-[KEYS NEEDED FOR EACH]
-
-[MAIN TABLES]
-User : Primary Key = {user_id}
-Movies: Primary Key = {movie_id}
-Directors: Primary Key = {director_id}
-Writers: Primary Key = {writer_id}
-Cast: Primary Key = {actor_id}
-Genres: Primary Key = {genre_id}
-
-Comments: Primary Key = {comment_id}, Foreign Keys = {movie_id, user_id, parent_comment_id}
-    - parent_comment_id is a "self-referential foreign key" that allows comments to reference other
-      comments (this should allow me to create the Reddit-like forum threads)
-
-    - the foreign keys here ensure that each comment is associated with a valid movie and user.
-
-Ratings: Primary Key = {rating_id}, Foreign Keys = {movie_id, user_id}
-    - the foreign keys here used to ensure ratings are made on a valid movie with a valid user
-
-[JUNCTION TABLES]
-Movie_Directors : Composite Key = {movie_id, director_id}, Foreign Keys = {movie_id, director_id}
-Movie_Writers : Composite Key = {movie_id, writer_id}, Foreign Keys = {movie_id, writer_id}
-Movie_Cast : Composite Key = {movie_id, actor_id}, Foreign Keys = {movie_id, actor_id}
-Movie_Genres : Composite Key = {movie_id, genre_id}, Foreign Keys = {movie_id, actor_id}
-
-    - We use a composite key for all of these junction tables because
-      it allows us to display the unique many-to-many relationship
-      these fields have with movies. For example, since Christopher Nolan
-      has only made one movie called "The Dark Knight",
-      the composite key maps him to the corresponding movie
-      (hence representing the unique relationship)
-
-FOR LOGIN SYSTEM USE HASH AND SALT
-THINK ABOUT OAuth For future login
+It would probably be smart to add a script to delete entries and also to edit entries
+This is in case I add a wrong value here or there
