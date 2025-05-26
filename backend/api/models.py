@@ -15,7 +15,7 @@ class User(models.Model):
         return f"Username: {self.username}. Name: {self.first_name} {self.last_name}"
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Users"
 
 
@@ -33,9 +33,10 @@ class Movie(models.Model):
         return f"{self.movie_name} ({self.release_year})"
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Movies"
         unique_together = (("movie_name", "release_year", "runtime"),)
+        ordering = ["movie_id"]
 
 
 class Director(models.Model):
@@ -48,12 +49,14 @@ class Director(models.Model):
         return f"Director Name: {self.first_name} {self.last_name}"
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Directors"
         unique_together = (("first_name", "last_name"),)
+        ordering = ["director_id"]
 
 
 class MovieDirector(models.Model):
+    id = models.AutoField(primary_key=True)
     movie = models.ForeignKey(
         Movie, models.DO_NOTHING, db_column="movie_id", related_name="directors"
     )
@@ -62,7 +65,7 @@ class MovieDirector(models.Model):
     )
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Movie_Directors"
         unique_together = (("movie", "director"),)
 
@@ -77,12 +80,14 @@ class Writer(models.Model):
         return f"Writer Name: {self.first_name} {self.last_name}"
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Writers"
         unique_together = (("first_name", "last_name"),)
+        ordering = ["writer_id"]
 
 
 class MovieWriter(models.Model):
+    id = models.AutoField(primary_key=True)
     movie = models.ForeignKey(
         Movie, models.DO_NOTHING, db_column="movie_id", related_name="writers"
     )
@@ -91,7 +96,7 @@ class MovieWriter(models.Model):
     )
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Movie_Writers"
         unique_together = (("movie", "writer"),)
 
@@ -106,12 +111,14 @@ class Actor(models.Model):
         return f"Actor Name: {self.first_name} {self.last_name}"
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Actors"
         unique_together = (("first_name", "last_name"),)
+        ordering = ["actor_id"]
 
 
 class MovieActor(models.Model):
+    id = models.AutoField(primary_key=True)
     movie = models.ForeignKey(
         Movie, models.DO_NOTHING, db_column="movie_id", related_name="actors"
     )
@@ -120,7 +127,7 @@ class MovieActor(models.Model):
     )
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Movie_Actors"
 
 
@@ -133,11 +140,13 @@ class Genre(models.Model):
         return f"Genre: {self.genre_name}"
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Genres"
+        ordering = ["genre_id"]
 
 
 class MovieGenre(models.Model):
+    id = models.AutoField(primary_key=True)
     movie = models.ForeignKey(
         Movie, models.DO_NOTHING, db_column="movie_id", related_name="genres"
     )
@@ -146,15 +155,15 @@ class MovieGenre(models.Model):
     )
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Movie_Genres"
         unique_together = (("movie", "genre"),)
 
 
 class Comment(models.Model):
     comment_id = models.AutoField(primary_key=True)
-    movie = models.ForeignKey(Movie, models.DO_NOTHING, db_column="movie_id")
-    user = models.ForeignKey(User, models.DO_NOTHING, db_column="user_id")
+    movie = models.ForeignKey(Movie, models.DO_NOTHING, db_column="movie_id", null=True)
+    user = models.ForeignKey(User, models.DO_NOTHING, db_column="user_id", null=True)
     comment_text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     objects = models.Manager()
@@ -167,14 +176,15 @@ class Comment(models.Model):
         return f"Movie: {self.movie} User: {self.user} Comment: {self.comment_text}"
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Comments"
+        ordering = ["comment_id"]
 
 
 class Rating(models.Model):
     rating_id = models.AutoField(primary_key=True)
-    movie = models.ForeignKey(Movie, models.DO_NOTHING, db_column="movie_id")
-    user = models.ForeignKey(User, models.DO_NOTHING, db_column="user_id")
+    movie = models.ForeignKey(Movie, models.DO_NOTHING, db_column="movie_id", null=True)
+    user = models.ForeignKey(User, models.DO_NOTHING, db_column="user_id", null=True)
     rating_value = models.FloatField()
     review_text = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -184,6 +194,7 @@ class Rating(models.Model):
         return f"Movie: {self.movie} User: {self.user} Rating: {self.rating_value}"
 
     class Meta:
-        managed = False
+        managed = True
         db_table = "Ratings"
         unique_together = (("movie", "user"),)
+        ordering = ["rating_id"]
