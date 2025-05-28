@@ -4,7 +4,7 @@ from django.db.models.deletion import CASCADE
 # User Table
 
 
-class UserTable(models.Model):
+class UsersTable(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     username = models.CharField(max_length=255, unique=True)
@@ -77,7 +77,7 @@ class GenresTable(models.Model):
 class CommentsTable(models.Model):
     comment_id = models.AutoField(primary_key=True)
     movie_id = models.ForeignKey(MoviesTable, models.DO_NOTHING, db_column="movie_id")
-    user_id = models.ForeignKey(UserTable, models.DO_NOTHING, db_column="user_id")
+    user_id = models.ForeignKey(UsersTable, models.DO_NOTHING, db_column="user_id")
     comment_text = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     parent_comment_id = models.ForeignKey(
@@ -95,7 +95,7 @@ class CommentsTable(models.Model):
 class RatingsTable(models.Model):
     rating_id = models.AutoField(primary_key=True)
     movie_id = models.ForeignKey(MoviesTable, models.DO_NOTHING, db_column="movie_id")
-    user_id = models.ForeignKey(UserTable, models.DO_NOTHING, db_column="user_id")
+    user_id = models.ForeignKey(UsersTable, models.DO_NOTHING, db_column="user_id")
     rating_value = models.FloatField()
     review_text = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
