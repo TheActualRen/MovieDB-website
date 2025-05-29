@@ -2,12 +2,14 @@ from rest_framework import serializers
 
 from .models import *
 
+# User Serializer
 
-class UsersTableSerializer(serializers.ModelSerializer):
+
+class UsersSerializer(serializers.ModelSerializer):
     hashed_password = serializers.CharField(write_only=True)
 
     class Meta:
-        model = UsersTable
+        model = Users
         fields = [
             "id",
             "first_name",
@@ -19,9 +21,12 @@ class UsersTableSerializer(serializers.ModelSerializer):
         ]
 
 
-class MoviesTableSerializer(serializers.ModelSerializer):
+# Main Table Serializers
+
+
+class MoviesSerializer(serializers.ModelSerializer):
     class Meta:
-        model = MoviesTable
+        model = Movies
         fields = [
             "id",
             "movie_name",
@@ -33,37 +38,71 @@ class MoviesTableSerializer(serializers.ModelSerializer):
         ]
 
 
-class DirectorTableSerializer(serializers.ModelSerializer):
+class DirectorsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DirectorsTable
+        model = Directors
         fields = ["id", "first_name", "last_name"]
 
 
-class WritersTableSerializer(serializers.ModelSerializer):
+class WritersSerializer(serializers.ModelSerializer):
     class Meta:
-        model = WritersTable
+        model = Writers
         fields = ["id", "first_name", "last_name"]
 
 
-class ActorsTableSerializer(serializers.ModelSerializer):
+class ActorsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ActorsTable
+        model = Actors
         fields = ["id", "first_name", "last_name"]
 
 
-class GenresTableSerializer(serializers.ModelSerializer):
+class GenresSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GenresTable
+        model = Genres
         fields = ["id", "genre_name"]
 
 
-class CommentsTableSerializer(serializers.ModelSerializer):
+class CommentsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CommentsTable
-        fields = ["id", "comment_text", "created_at", "parent_comment_id"]
+        model = Comments
+        fields = [
+            "id",
+            "comment_text",
+            "created_at",
+            "parent_comment_id",
+            "user_id",
+            "movie_id",
+        ]
 
 
-class RatingsTableSerializer(serializers.ModelSerializer):
+class RatingsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RatingsTable
+        model = Ratings
         fields = ["id", "rating_value", "review_text", "created_at"]
+
+
+# Junction Table Serializers
+
+
+class MovieDirectorsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MovieDirectors
+        fields = ["id", "movie", "director"]
+
+
+class MovieWritersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MovieWriters
+        fields = ["id", "movie", "writer"]
+
+
+class MovieActorsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MovieActors
+        fields = ["id", "movie", "actor"]
+
+
+class MovieGenresSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MovieGenres
+        fields = ["id", "movie", "genre"]

@@ -4,7 +4,7 @@ from django.db.models.deletion import CASCADE
 # User Table
 
 
-class UsersTable(models.Model):
+class Users(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     username = models.CharField(max_length=255, unique=True)
@@ -19,7 +19,7 @@ class UsersTable(models.Model):
 # Main Tables
 
 
-class MoviesTable(models.Model):
+class Movies(models.Model):
     movie_name = models.CharField(max_length=255)
     release_year = models.IntegerField()
     age_rating = models.CharField(max_length=10)
@@ -34,7 +34,7 @@ class MoviesTable(models.Model):
         return f"{self.movie_name} | {self.release_year} | {self.runtime}"
 
 
-class DirectorsTable(models.Model):
+class Directors(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
 
@@ -45,7 +45,7 @@ class DirectorsTable(models.Model):
         return f"{self.first_name} | {self.last_name}"
 
 
-class WritersTable(models.Model):
+class Writers(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
 
@@ -56,7 +56,7 @@ class WritersTable(models.Model):
         return f"{self.first_name} | {self.last_name}"
 
 
-class ActorsTable(models.Model):
+class Actors(models.Model):
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
 
@@ -67,17 +67,17 @@ class ActorsTable(models.Model):
         return f"{self.first_name} | {self.last_name}"
 
 
-class GenresTable(models.Model):
+class Genres(models.Model):
     genre_name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         return self.genre_name
 
 
-class CommentsTable(models.Model):
+class Comments(models.Model):
     comment_id = models.AutoField(primary_key=True)
-    movie_id = models.ForeignKey(MoviesTable, models.DO_NOTHING, db_column="movie_id")
-    user_id = models.ForeignKey(UsersTable, models.DO_NOTHING, db_column="user_id")
+    movie_id = models.ForeignKey(Movies, models.DO_NOTHING, db_column="movie_id")
+    user_id = models.ForeignKey(Users, models.DO_NOTHING, db_column="user_id")
     comment_text = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     parent_comment_id = models.ForeignKey(
@@ -92,16 +92,16 @@ class CommentsTable(models.Model):
         return self.comment_text
 
 
-class RatingsTable(models.Model):
+class Ratings(models.Model):
     rating_id = models.AutoField(primary_key=True)
-    movie_id = models.ForeignKey(MoviesTable, models.DO_NOTHING, db_column="movie_id")
-    user_id = models.ForeignKey(UsersTable, models.DO_NOTHING, db_column="user_id")
+    movie_id = models.ForeignKey(Movies, models.DO_NOTHING, db_column="movie_id")
+    user_id = models.ForeignKey(Users, models.DO_NOTHING, db_column="user_id")
     rating_value = models.FloatField()
     review_text = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("id", "rating_value")
+        unique_together = ("movie_id", "user_id")
 
     def __str__(self):
         return f"{self.rating_value} | {self.user_id}"
@@ -110,12 +110,12 @@ class RatingsTable(models.Model):
 # Junction Tables
 
 
-class MovieDirectorsTable(models.Model):
+class MovieDirectors(models.Model):
     movie = models.ForeignKey(
-        MoviesTable, on_delete=models.CASCADE, db_column="movie_id"
+        Movies, on_delete=models.CASCADE, db_column="movie_id"
     )
     director = models.ForeignKey(
-        DirectorsTable, on_delete=CASCADE, db_column="director_id"
+        Directors, on_delete=CASCADE, db_column="director_id"
     )
 
     class Meta:
@@ -123,23 +123,23 @@ class MovieDirectorsTable(models.Model):
         db_table = "Movie_Directors"
 
 
-class MovieWritersTable(models.Model):
+class MovieWriters(models.Model):
     movie = models.ForeignKey(
-        MoviesTable, on_delete=models.CASCADE, db_column="movie_id"
+        Movies, on_delete=models.CASCADE, db_column="movie_id"
     )
-    writer = models.ForeignKey(WritersTable, on_delete=CASCADE, db_column="writer_id")
+    writer = models.ForeignKey(Writers, on_delete=CASCADE, db_column="writer_id")
 
     class Meta:
         unique_together = ("movie", "writer")
         db_table = "Movie_Writers"
 
 
-class MovieActorsTable(models.Model):
+class MovieActors(models.Model):
     movie = models.ForeignKey(
-        MoviesTable, on_delete=models.CASCADE, db_column="movie_id"
+        Movies, on_delete=models.CASCADE, db_column="movie_id"
     )
     actor = models.ForeignKey(
-        ActorsTable, on_delete=models.CASCADE, db_column="actor_id"
+        Actors, on_delete=models.CASCADE, db_column="actor_id"
     )
 
     class Meta:
@@ -149,10 +149,10 @@ class MovieActorsTable(models.Model):
 
 class MovieGenres(models.Model):
     movie = models.ForeignKey(
-        MoviesTable, on_delete=models.CASCADE, db_column="movie_id"
+        Movies, on_delete=models.CASCADE, db_column="movie_id"
     )
     genre = models.ForeignKey(
-        GenresTable, on_delete=models.CASCADE, db_column="genre_id"
+        Genres, on_delete=models.CASCADE, db_column="genre_id"
     )
 
     class Meta:
