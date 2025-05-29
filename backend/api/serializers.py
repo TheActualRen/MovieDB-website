@@ -17,7 +17,7 @@ class UsersSerializer(serializers.ModelSerializer):
             "username",
             "hashed_password",
             "email",
-            "state",
+            # "state",
         ]
 
 

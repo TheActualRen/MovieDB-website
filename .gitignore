@@ -5,6 +5,9 @@ __pycache__/
 # Ignore db
 popcorn.db
 
+# Ignore db.sqlite3
+db.sqlite3
+
 # Ignore Poster stuff
 posters/
 

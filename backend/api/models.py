@@ -11,7 +11,7 @@ class Users(models.Model):
     username = models.CharField(max_length=255, unique=True)
     hashed_password = models.CharField(max_length=255)
     email = models.EmailField(unique=True)
-    state = models.CharField(max_length=50, default="active")
+    # state = models.CharField(max_length=50, default="active")
 
     class Meta:
         db_table = "Users"
