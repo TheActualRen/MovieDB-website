@@ -11,7 +11,7 @@ class UsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
         fields = [
-            "id",
+            "user_id",
             "first_name",
             "last_name",
             "username",
@@ -28,7 +28,7 @@ class MoviesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Movies
         fields = [
-            "id",
+            "movie_id",
             "movie_name",
             "release_year",
             "age_rating",
@@ -41,32 +41,32 @@ class MoviesSerializer(serializers.ModelSerializer):
 class DirectorsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Directors
-        fields = ["id", "first_name", "last_name"]
+        fields = ["director_id", "first_name", "last_name"]
 
 
 class WritersSerializer(serializers.ModelSerializer):
     class Meta:
         model = Writers
-        fields = ["id", "first_name", "last_name"]
+        fields = ["writer_id", "first_name", "last_name"]
 
 
 class ActorsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Actors
-        fields = ["id", "first_name", "last_name"]
+        fields = ["actor_id", "first_name", "last_name"]
 
 
 class GenresSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genres
-        fields = ["id", "genre_name"]
+        fields = ["genre_id", "genre_name"]
 
 
 class CommentsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comments
         fields = [
-            "id",
+            "comment_id",
             "comment_text",
             "created_at",
             "parent_comment_id",
@@ -78,7 +78,7 @@ class CommentsSerializer(serializers.ModelSerializer):
 class RatingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ratings
-        fields = ["id", "rating_value", "review_text", "created_at"]
+        fields = ["rating_id", "rating_value", "review_text", "created_at"]
 
 
 # Junction Table Serializers
@@ -87,22 +87,22 @@ class RatingsSerializer(serializers.ModelSerializer):
 class MovieDirectorsSerializer(serializers.ModelSerializer):
     class Meta:
         model = MovieDirectors
-        fields = ["id", "movie", "director"]
+        fields = ["movie", "director"]
 
 
 class MovieWritersSerializer(serializers.ModelSerializer):
     class Meta:
         model = MovieWriters
-        fields = ["id", "movie", "writer"]
+        fields = ["movie", "writer"]
 
 
 class MovieActorsSerializer(serializers.ModelSerializer):
     class Meta:
         model = MovieActors
-        fields = ["id", "movie", "actor"]
+        fields = ["movie", "actor"]
 
 
 class MovieGenresSerializer(serializers.ModelSerializer):
     class Meta:
         model = MovieGenres
-        fields = ["id", "movie", "genre"]
+        fields = ["movie", "genre"]
