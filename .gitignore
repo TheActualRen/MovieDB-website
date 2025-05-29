@@ -1,18 +1,50 @@
-# Ignore Python cache
+# === Python ===
 __pycache__/
+*.py[cod]
+*.sqlite3
+*.db
+*.log
+
+# Virtual environment
+venv/
+env/
+
+# Django specific
 *.pyc
-
-# Ignore db
-popcorn.db
-
-# Ignore db.sqlite3
-db.sqlite3
-
-# Ignore Poster stuff
-posters/
-
-#ignore movies.json file
-movies.json
-
-#ignore .env file
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+*.mo
+*.pot
+*.log
+media/
+staticfiles/
+local_settings.py
 .env
+
+# Migrations — optional (keep if prepopulated)
+**/migrations/*.pyc
+**/migrations/__pycache__/
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# === Node/React ===
+frontend/node_modules/
+frontend/build/
+frontend/.env
+frontend/.next/
+frontend/.turbo/
+
+# === OS Files ===
+.DS_Store
+Thumbs.db
+
+# === IDE Files ===
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore movies.json file too
+movies.json
