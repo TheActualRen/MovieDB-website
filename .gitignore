@@ -48,3 +48,6 @@ Thumbs.db
 
 # Ignore movies.json file too
 movies.json
+
+# Ignore posters
+posters
