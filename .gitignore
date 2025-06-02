@@ -51,3 +51,6 @@ movies.json
 
 # Ignore posters
 posters
+
+package-lock.json
+package.json
